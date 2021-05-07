@@ -3,17 +3,19 @@ import numpy as np
 import os
 
 from tensorflow.keras.callbacks import Callback
-import wandb
+#import wandb
 
 # extend Keras callback to log benchmark-specific key, "kmnist_val_acc"
 class KmnistCallback(Callback):
   def on_epoch_end(self, epoch, logs={}):
     if "val_accuracy" in logs:
         # latest version of tensorflow
-        wandb.log({"kmnist_val_acc" : logs["val_accuracy"]}, commit=False)
+        #wandb.log({"kmnist_val_acc" : logs["val_accuracy"]}, commit=False)
+        pass
     elif "val_acc" in logs:
         # older version of tensorflow
-        wandb.log({"kmnist_val_acc" : logs["val_acc"]}, commit=False)
+        #wandb.log({"kmnist_val_acc" : logs["val_acc"]}, commit=False)
+        pass
     else:
         raise Exception("Keras logs object missing validation accuracy")
 
