@@ -13,39 +13,39 @@ import torch.nn.functional as F
 from utils import load_train_data, load_test_data, load
 from PIL import Image
 
-import wandb
+#import wandb
 import os
 
-wandb.init()
-config = wandb.config
+#wandb.init()
+#config = wandb.config
 
-config.dropout = 0.5
-config.channels_one = 16
-config.channels_two = 32
-config.batch_size = 100
-config.epochs = 50
+#config.dropout = 0.5
+#config.channels_one = 16
+#config.channels_two = 32
+#config.batch_size = 100
+#config.epochs = 50
 
 class CNNModel(nn.Module):
     def __init__(self):
         super(CNNModel, self).__init__()
 
         # Convolution 1
-        self.cnn1 = nn.Conv2d(in_channels=1, out_channels=config.channels_one, kernel_size=5, stride=1, padding=0)
+        self.cnn1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=0)
         self.relu1 = nn.ReLU()
         # Max pool 1
         self.maxpool1 = nn.MaxPool2d(kernel_size=2)
 
         # Convolution 2
-        self.cnn2 = nn.Conv2d(in_channels=config.channels_one, out_channels=config.channels_two, kernel_size=5, stride=1, padding=0)
+        self.cnn2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, stride=1, padding=0)
         self.relu2 = nn.ReLU()
 
         # Max pool 2
         self.maxpool2 = nn.MaxPool2d(kernel_size=2)
 
-        self.dropout = nn.Dropout(p=config.dropout)
+        self.dropout = nn.Dropout(p=0.5)
 
         # Fully connected 1 (readout)
-        self.fc1 = nn.Linear(config.channels_two*4*4, 10)
+        self.fc1 = nn.Linear(32*4*4, 10)
 
     def forward(self, x):
         # Convolution 1
@@ -155,24 +155,24 @@ def main():
 
 
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
-                                               batch_size=config.batch_size,
+                                               batch_size=100,
                                                shuffle=True)
 
     test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
-                                              batch_size=config.batch_size,
+                                              batch_size=100,
                                               shuffle=False)
 
 
     model = CNNModel()
-    wandb.watch(model)
+    #wandb.watch(model)
 
     criterion = nn.CrossEntropyLoss()
     config.learning_rate = 0.001
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     iter = 0
-    for epoch in range(config.epochs):
+    for epoch in range(1):
         for i, (images, labels) in enumerate(train_loader):
 
             images = Variable(images)
@@ -225,7 +225,7 @@ def main():
                 accuracy = float(correct) / total
 
                 metrics = {'kmnist_val_acc': accuracy, 'val_loss': loss}
-                wandb.log(metrics)
+                #wandb.log(metrics)
 
 
 if __name__ == '__main__':
