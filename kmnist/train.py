@@ -88,8 +88,10 @@ def main():
                                               shuffle=False, 
                                               num_workers=args.num_workers, 
                                               pin_memory=True)
-
-    model = CNNSimple()
+    if args.model == 'simple':
+        model = CNNSimple()
+    elif args.model == 'deeper':
+        model = CNNDeeper()
     criterion = nn.CrossEntropyLoss()
     optim = torch.optim.Adam(model.parameters(), lr=0.001)
 
