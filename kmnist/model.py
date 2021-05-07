@@ -10,7 +10,7 @@ IM_WIDTH = 28
 
 class CNNSimple(nn.Module):
     def __init__(self):
-        super(CNNModel, self).__init__()
+        super(CNNSimple, self).__init__()
         self.relu = nn.ReLU()
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=0)
         self.maxpool1 = nn.MaxPool2d(kernel_size=2)
