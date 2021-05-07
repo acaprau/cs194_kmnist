@@ -4,6 +4,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as dsets
 import torch.nn.functional as F
 import os
+import argparse
 
 from PIL import Image
 from torch.autograd import Variable
@@ -18,11 +19,9 @@ DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 
 def _setup_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--macro-model', type=str, default='single')
-    parser.add_argument('--model', type=str, default='resnet18')
+    parser.add_argument('--model', type=str, default='simple')
     parser.add_argument('--epochs', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=32)
-    parser.add_argument('--transform_epoch', type=int, default=-1)
     parser.add_argument('--trial', type=str, default='0')
     parser.add_argument('--num_workers', type=int, default=2)
     return parser
@@ -90,7 +89,7 @@ def main():
                                               num_workers=args.num_workers, 
                                               pin_memory=True)
 
-    model = CNNModel()
+    model = CNNSimple()
     criterion = nn.CrossEntropyLoss()
     optim = torch.optim.Adam(model.parameters(), lr=0.001)
 
@@ -98,31 +97,36 @@ def main():
     model.to(device=DEVICE)
     epochs = args.epochs
     for epoch in range(epochs):
+        print(f'Epoch {epoch}')
+        train_correct, train_total = 0.0, 0.0
+
         for i, (inputs, labels) in enumerate(train_loader):
             optim.zero_grad()
             outputs = model(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
             optim.step()
-            if i % 100 == 0:
-                correct, total = 0.0, 0.0
-                model.eval()
-                for inputs, labels in test_loader:
-                    outputs = model(inputs)
-                    _, predicted = torch.max(outputs.data, 1)
-                    total += labels.size(0)
-                    correct += predicted.eq(labels).sum().item()
-                print(f'Validation accuracy: {correct / total:.3f}')
-                model.train()
 
-    correct, total = 0.0, 0.0
-    model.eval()
-    for inputs, labels in test_loader:
-        outputs = model(inputs)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += predicted.eq(labels).sum().item()
-    print(f'Validation accuracy: {correct / total:.3f}')
+            with torch.no_grad():
+                _, predicted = outputs.max(1)
+                train_total += labels.size(0)
+                train_correct += predicted.eq(labels).sum().item()
+                print(f'\rTraining {100 * i / len(train_loader):.2f}%, Accuracy: {train_correct / train_total:.3f}', end='')
+
+        torch.save({'net': model.state_dict()}, 
+                    f'models/{args.model}_{args.trial}.pt')
+        print()
+
+        val_correct, val_total = 0.0, 0.0
+        model.eval()
+        for inputs, labels in test_loader:
+            outputs = model(inputs)
+            _, predicted = outputs.max(1)
+            val_total += labels.size(0)
+            val_correct += predicted.eq(labels).sum().item()
+        print(f'Validation accuracy: {val_correct / val_total:.3f}')
+        model.train()
+
     print(f'Done!')
 
 
