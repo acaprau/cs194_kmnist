@@ -167,7 +167,7 @@ def main():
     #wandb.watch(model)
 
     criterion = nn.CrossEntropyLoss()
-    config.learning_rate = 0.001
+    #config.learning_rate = 0.001
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
