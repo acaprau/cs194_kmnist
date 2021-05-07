@@ -1,9 +1,9 @@
 # utility functions for benchmarks
 import numpy as np
 import os
+import wandb
 
 from tensorflow.keras.callbacks import Callback
-#import wandb
 
 # extend Keras callback to log benchmark-specific key, "kmnist_val_acc"
 class KmnistCallback(Callback):
