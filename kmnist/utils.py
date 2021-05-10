@@ -2,6 +2,9 @@
 import numpy as np
 import os
 
+from PIL import Image
+
+
 #from tensorflow.keras.callbacks import Callback
 #import wandb
 
@@ -36,3 +39,23 @@ def load_test_data(datadir):
 def flatten(x):
     N = x.shape[0]
     return x.view(N, -1)
+
+def write_numpy_image(img, filepath='img.png'):
+    img = Image.fromarray(img, mode='L')
+    img.save(filepath)
+
+def write_pillow_image(img, filepath='img.png'):
+    img.save(filepath)
+
+def read_image_to_pillow(filepath):
+    img = Image.open(filepath)
+    return img
+
+def read_pillow_from_dataset(dataset='test', element=0):
+    if dataset == 'test':
+        data = load('dataset/kmnist-test-imgs.npz')
+    else:
+        data = load('dataset/kmnist-train-imgs.npz')
+    img = data[element]
+    img = Image.fromarray(img, mode='L')
+    return img
