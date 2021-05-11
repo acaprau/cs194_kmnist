@@ -5,10 +5,11 @@ import torchvision.datasets as dsets
 import torch.nn.functional as F
 import os
 import argparse
+import numpy as np
 
 from PIL import Image
 from torch.autograd import Variable
-from utils import load_train_data, load_test_data, load
+from utils import *
 from model import *
 
 
@@ -39,7 +40,12 @@ def main():
     img = load(path)
     print(f'Inputted image shape: {img.shape}')
     if len(img.shape) == 3 and img.shape[0] > 1:
-        img = img[0]
+        for _ in range(100):
+            idx = np.random.randint(0, 10000)
+            img1 = img[idx]
+            img1 = Image.fromarray(img1, mode='L')
+            write_pillow_image(img1, f'flask_app/kmnist_test/{idx}.png')
+        return
     img = Image.fromarray(img, mode='L')
     img = transform(img)
     img = img.unsqueeze(0)
